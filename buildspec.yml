@@ -1,0 +1,29 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.9
+    commands:
+      - echo "Installing Docker"
+      - apt-get update && apt-get install -y docker.io
+
+  pre_build:
+    commands:
+      - echo "Logging in to Amazon ECR..."
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 211125601405.dkr.ecr.us-east-1.amazonaws.com
+
+  build:
+    commands:
+      - echo "Building Docker image..."
+      - docker build -t dhivakar-flask-app .
+      - echo "Tagging Docker image..."
+      - docker tag dhivakar-flask-app:latest 211125601405.dkr.ecr.us-east-1.amazonaws.com/dhivakar-flask-app:latest
+
+  post_build:
+    commands:
+      - echo "Pushing Docker image to ECR..."
+      - docker push 211125601405.dkr.ecr.us-east-1.amazonaws.com/dhivakar-flask-app:latest
+
+artifacts:
+  files: []
